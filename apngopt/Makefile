@@ -1,6 +1,6 @@
 PACKAGE    = apngopt
 CC         = gcc
-SRC_DIRS   = . 7z zopfli
+SRC_DIRS   = . 7z zopfli ../imagequant libpng
 CFLAGS     = -Wall -pedantic
 CFLAGS_OPT = -O2
 CFLAGS_7Z  = -Wno-sign-compare -Wno-reorder -Wno-maybe-uninitialized -Wno-parentheses
