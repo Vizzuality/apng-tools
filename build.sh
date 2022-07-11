@@ -14,8 +14,7 @@ cd apngopt; make; cd ..
   -o apng-optimizer \
   ${OPTIMIZE} \
   -flto \
-  -stdlib=libc++ \
-  -I ./apngopt \
+  -I ./apngopt -I ./apngopt/7z -I ./apngopt/imagequant -I ./apngopt/libpng -I ./apngopt/zlib -I ./apngopt/zopfli \
   ./apngopt/obj/*.o \
   ./apngopt/obj/**/*.o \
   ./apngopt/imagequant/target/release/libimagequant_sys.a \

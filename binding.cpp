@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "apngopt.hpp"
+#include <memory>
 
 struct Options
 {
@@ -19,14 +20,14 @@ struct OptimizerResult
     long size;
 };
 
-OptimizerResult optAPNG(std::shared_ptr<void> pngBufferPtr, long size, Options options, void (*callbackPtr)(float))
+OptimizerResult optAPNG(void *pngBufferPtr, long size, Options options, void (*callbackPtr)(float))
 {
     unsigned int first, loops, coltype;
     std::shared_ptr<APNGOpt> apngOpt = std::make_shared<APNGOpt>(callbackPtr);
     std::vector<APNGFrame> frames;
     OptimizerResult result = {0, 0};
 
-    int res = apngOpt->load_apng(pngBufferPtr.get(), size, frames, first, loops);
+    int res = apngOpt->load_apng(pngBufferPtr, size, frames, first, loops);
     if (res >= 0)
     {
         apngOpt->optim_dirty(frames);
@@ -62,26 +63,42 @@ void onProgress(float progress)
 
 int main(int argc, char **argv)
 {
-    if (argc <= 1)
+    if (argc <= 2)
     {
-        std::cerr << "ERROR: No input file provided" << std::endl;
+        std::cerr << "ERROR: Incorrect number of parameters. 1) input path - 2) output path" << std::endl;
         return EXIT_FAILURE;
     }
+    
+    std::ifstream inputFile(argv[1], std::ios::in | std::ios::binary);
 
-    std::ifstream input(argv[1]);
-    input.seekg(0, std::ios::end);
-    size_t fileSize = input.tellg();
-    input.seekg(0, std::ios::beg);
+// Stop eating new lines in binary mode
+    inputFile.unsetf(std::ios::skipws);
 
-    std::vector<char> inputBytes(fileSize);
-    input.read(inputBytes.data(), fileSize);
+// Determine length of data to read
+    inputFile.seekg(0, std::ios::end);
+    size_t fileSize = inputFile.tellg();
+    inputFile.seekg(0, std::ios::beg);
 
-    // std::shared_ptr<void> apngPointer = std::shared_ptr<void>(&inputBytes[0]);
+    std::vector<char> inputBytes;
+    inputBytes.reserve(fileSize);
+    //input.read(inputBytes.data(), fileSize);
+    inputBytes.insert(inputBytes.begin(), std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
     std::cout << "Read " << fileSize << " bytes" << std::endl;
 
-    // Options options;
-    // optAPNG(apngPointer, fileSize, options, onProgress);
+    Options options;
+    OptimizerResult result = optAPNG(&inputBytes[0], fileSize, options, onProgress);
 
-    // std::cout << "If this shows up the main compiles and runs!" << std::endl;
+    std::cout << "Process complete. Saving to file " << argv[2]<< std::endl;
+
+    //https://stackoverflow.com/questions/11563963/how-to-write-a-large-buffer-into-a-binary-file-in-c-fast
+    auto outputFile = std::fstream(argv[2], std::ios::out | std::ios::binary);
+    outputFile.write((char *)result.bufferPtr, result.size);
+    outputFile.close();
+
+    std::cout << "Save completed. Cleaning up"<< std::endl;
+
+    free((void*)result.bufferPtr);
+
+    std::cout << "Completed "<< std::endl;
 }

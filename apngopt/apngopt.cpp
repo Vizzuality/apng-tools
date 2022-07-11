@@ -34,6 +34,7 @@ extern "C"
 #include "zopfli.h"
 }
 #include "apngopt.hpp"
+#include <cstring>
 
 #define notabc(c) ((c) < 65 || (c) > 122 || ((c) > 90 && (c) < 97))
 
