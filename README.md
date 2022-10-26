@@ -1,20 +1,23 @@
+Redes
+==============================
+
+![](./assets/redes.png)
+[Red.es](https://www.red.es/es) is a grant from the Ministerio De Asuntos Económicos Y Transformación Digital to carry out innovation in Vizzuality’s portfolio of Digital Content products and services.
+
 # APNG-Optimizer
+This is a tool to optimize APNG files. It uses [libimagequant](https://github.com/ImageOptim/libimagequant) and [APNG Optimizer](https://sourceforge.net/projects/apng/files/APNG_Optimizer/)
 
-基于 WebAssembly 的 APNG 图片压缩工具。
-
-底层基于 [libimagequant](https://github.com/ImageOptim/libimagequant) 与 [APNG Optimizer](https://sourceforge.net/projects/apng/files/APNG_Optimizer/)
-
-## 运行 demo
+## Run the demo
 
 ```sh
-npm run demo
+yarn install && yarn demo
 ```
 
-![demo](https://st0.dancf.com/csc/208/configs/system/20210101-113557-8d27.png)
+![demo](./assets/apng-optimization.png)
 
-## 如何使用
+## Use it in your project
 
-在开始使用前，我们需要配置我们的打包工具(如 webpack)来支持加载 WebAssembly:
+Before we get started, we need to configure our packaging tool (like webpack) to support loading WebAssembly:
 
 ```js
 module.exports = {
@@ -28,7 +31,6 @@ module.exports = {
     }
 }
 ```
-
 
 ```js
 import { APNGOptimizer } from 'apng-optimizer';
@@ -56,17 +58,18 @@ APNGOptimizer.createOptimizer(assemblyPath)
 
 ### APNGOptimizer.createOptimizer(modulePath: string): Promise<APNGOptimizer>
 
-通过加载 `modulePath` 路径上的 WebAssembly 来创建一个新的压缩器实例
+Create a new compressor instance by loading WebAssembly on the `modulePath` path.
 
 ### APNGOptimizer.#optAPNG(apngBuffer: Uint8Array, options?: OptimizerOptions): Uint8Array
 
-压缩 apng 图片
-+ apngBuffer: apng 图像文件的 buffer 数据
-+ options: 优化配置
-    + deflateMethod(number): 选择压缩算法 0: zlib, 1: 7zip, 2: zopfli，默认为 `1`
-    + iter(number): 使用压缩算法的迭代次数，默认为 `15`
-    + minQuality(number): 使用 `imagequant` 进行色板取色的最小质量，默认为 `0`
-    + maxQuality(number): 使用 `imagequant` 进行色斑取色的最大质量，默认为 `100`
-    + disabledQuant(boolean): 禁用 `imagequant`，禁用后 `minQuality` 与 `maxQuality` 将会无效
-    + processCallback((progress: number) => void): 压缩进度回调，`progress` 为当前压缩进度( 0 ~ 1)
+compress apng images
 
++ apngBuffer: buffer data of apng image file
++ Optimization options:
+  + deflateMethod(number): 0: zlib, 1: 7zip, 2: zopfli，Default `1`
+  + iter(number): The number of iterations to use the compression algorithm, defaults to
+ `15`
+  + minQuality(number): `imagequant` Minimum quality for swatch picking, default is `0`
+  + maxQuality(number): `imagequant` Maximum quality for swatch picking, default is `100`
+  + disabledQuant(boolean): Disable `imagequant`, `minQuality` and `maxQuality` will have no effect when disabled
+  + processCallback((progress: number) => void): Compression progress callback, `progress` is the current compression progress ( 0 ~ 1)
